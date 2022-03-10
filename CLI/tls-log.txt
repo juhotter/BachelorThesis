@@ -1,0 +1,4 @@
+{"sni": "beacons.gcp.gvt2.com", "success": true, "peername": ["172.217.18.99", 443], "tag": ""}
+{"sni": "www.google.com", "success": true, "peername": ["142.250.185.68", 443], "tag": ""}
+{"sni": "www.google.com", "success": true, "peername": ["142.250.185.68", 443], "tag": ""}
+{"sni": "ad11.adfarm1.adition.com", "success": true, "peername": ["85.114.159.112", 443], "tag": ""}
