@@ -22,6 +22,7 @@ import matplotlib.pyplot as plt
 # no need for that - if mitmproxy 8.0 is public mode ( currently dev )
 path_for_mitmproxy = "/Users/julianhotter/downloads/mitmproxy-main-osx/"
 proc = None
+model = "Test"
 
 
 #HOWTOUSE-CLI
@@ -69,6 +70,7 @@ def adb_uninstall_after_time(apkfile):
 
 def startMitmProxy(appname,method):
     global proc 
+    global model
     model = subprocess.run("adb devices -l |  rev |  cut -d " " -f 3 | rev | grep model:") 
     #proc = subprocess.Popen(path_for_mitmproxy+"mitmdump -s tlslogger.py --set tls_logfile=tls-log.txt --set tls_tag="+appname,shell=True)
     proc =subprocess.Popen([path_for_mitmproxy,"mitmdump", "-s", "tlslogger.py", "--set", "tls_logfile=tls-log.txt", "--set", "tls_app="+appname, "--set", "tls_method="+method, "--set", "tls_device="+model])
@@ -87,6 +89,7 @@ def endMitmProxy():
 
 #always parses tls-log.txt
 def parseJsonFile():
+    global model
     subprocess.run("cp tls-log.txt tls-log.json", shell=True)
     dataframe = pandas.read_json("tls-log.json", lines=True )
     #click.echo(dataframe)
@@ -95,7 +98,7 @@ def parseJsonFile():
     grouped = dataframe.groupby('app')["method","success"].value_counts().unstack().sort_index(ascending=False)
     #print(grouped)
     ax = grouped.plot.barh(stacked=True,color=['wheat', 'gold','black','red'])
-    ax.set_title('Vergleich der Approaches gruppiert nach Apps')
+    ax.set_title('Vergleich der Approaches gruppiert nach Apps -  Device: '+model)
     ax.set_xlabel('Anzahl mitgeschnittener Traffic')
     ax.set_ylabel('')
     ax.plot()
