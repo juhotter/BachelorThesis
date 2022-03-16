@@ -33,7 +33,7 @@ model = "Test"
 
 
 
-
+#./eval.py run --method rooted com.instagram.android.apk
 
 
 def parseTextFile(textname):
@@ -61,7 +61,7 @@ def adb_run(apkfile):
 
 
 def adb_uninstall_after_time(apkfile):
-    subprocess.run("sleep 10", shell=True )
+    subprocess.run("sleep 20", shell=True )
     packagename = apkfile[:len(apkfile)-4]
     subprocess.run("adb uninstall "+packagename,shell=True)
 
@@ -71,10 +71,14 @@ def adb_uninstall_after_time(apkfile):
 def startMitmProxy(appname,method):
     global proc 
     global model
-    model = subprocess.run("adb devices -l |  rev |  cut -d " " -f 3 | rev | grep model:") 
+    model = subprocess.run("adb devices -l |  rev |  cut -d ' ' -f 3 | rev | grep model",shell = True) 
     #proc = subprocess.Popen(path_for_mitmproxy+"mitmdump -s tlslogger.py --set tls_logfile=tls-log.txt --set tls_tag="+appname,shell=True)
-    proc =subprocess.Popen([path_for_mitmproxy,"mitmdump", "-s", "tlslogger.py", "--set", "tls_logfile=tls-log.txt", "--set", "tls_app="+appname, "--set", "tls_method="+method, "--set", "tls_device="+model])
 
+    arg1 = "tls_app="+appname
+    arg2 = "tls_method="+method
+    arg3 = "tls_device="+str(model)
+    fullpath = path_for_mitmproxy+"mitmdump"
+    proc =subprocess.Popen([fullpath, "-s", "tlslogger.py", "--set", "tls_logfile=tls-log.txt", "--set", arg1, "--set", arg2, "--set", arg3 ],shell=True)
 
 
 
@@ -99,7 +103,7 @@ def parseJsonFile():
     #print(grouped)
     ax = grouped.plot.barh(stacked=True,color=['wheat', 'gold','black','red'])
     ax.set_title('Vergleich der Approaches gruppiert nach Apps -  Device: '+model)
-    ax.set_xlabel('Anzahl mitgeschnittener Traffic')
+    ax.set_xlabel('Anzahl HTTP/HTTPS Requests und Responses')
     ax.set_ylabel('')
     ax.plot()
     plt.show()
