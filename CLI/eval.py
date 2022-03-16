@@ -28,7 +28,7 @@ proc = None
 #./eval.py download --fromfile FILENAME
 #./eval.py evaluate 
 #./eval.py run --method METHODENNAME NAME.APK ( apps runnen)
-    # choose between -> apkmitm,objection,frida,none
+    # choose between -> apkmitm,objection,frida,none,rooted
 
 
 
@@ -91,11 +91,11 @@ def parseJsonFile():
     dataframe = pandas.read_json("tls-log.json", lines=True )
     #click.echo(dataframe)
     all_app_names = sorted(dataframe['app'].unique())
-    
-    grouped = dataframe.groupby('app')["success"].value_counts(normalize=True).mul(10).unstack().sort_index(ascending=False)
+    #grouped = dataframe.groupby('app')["success"].value_counts(normalize=True).mul(10).unstack().sort_index(ascending=False)
+    grouped = dataframe.groupby('app')["method","success"].value_counts().unstack().sort_index(ascending=False)
     #print(grouped)
-    ax = grouped.plot.barh(stacked=True,color=['wheat', 'gold'])
-    ax.set_title('Wie viel Traffic kann man mitschneiden?')
+    ax = grouped.plot.barh(stacked=True,color=['wheat', 'gold','black','red'])
+    ax.set_title('Vergleich der Approaches gruppiert nach Apps')
     ax.set_xlabel('Anzahl mitgeschnittener Traffic')
     ax.set_ylabel('')
     ax.plot()
@@ -140,7 +140,7 @@ def frida_patching(apkfile):
 
 @click.command()
 @click.argument('name')
-@click.option('--method',nargs=2,help='which method -  choose between : none,apmitm,objection,frida?')
+@click.option('--method',nargs=2,help='which method -  choose between : none,apmitm,objection,frida,rooted?')
 @click.option('--fromfile',help='which file?')
 
 
@@ -185,6 +185,13 @@ def main(name,method,fromfile):
 
         elif  method[0] == "none":
             click.echo("You choose without patching with " +method[1])
+            adb_install(method[1])
+            adb_run(method[1])
+            adb_uninstall_after_time(method[1])
+            endMitmProxy()
+        
+        elif  method[0] == "rooted":
+            click.echo("You choose without patching on a rooted device " +method[1])
             adb_install(method[1])
             adb_run(method[1])
             adb_uninstall_after_time(method[1])
